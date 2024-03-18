@@ -1,0 +1,43 @@
+/* styles/globals.css */
+
+/* Reset some default styles */
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Add some basic styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #EADFB4;
+}
+
+.map-container {
+  margin: 20px auto;
+}
+.draw-button{
+  cursor: pointer;
+  margin-left: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #F6995C;
+  color: black;
+}
+.draw-button:hover{
+  background-color: #51829B;
+}
+
+
+.btn{
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+h1{
+  text-align: center;
+}
