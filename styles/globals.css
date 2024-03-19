@@ -1,6 +1,5 @@
 /* styles/globals.css */
 
-/* Reset some default styles */
 html,
 body,
 #__next {
@@ -9,15 +8,18 @@ body,
   padding: 0;
 }
 
-/* Add some basic styling */
+
 body {
   font-family: Arial, sans-serif;
   background-color: #EADFB4;
+  
 }
 
 .map-container {
   margin: 20px auto;
 }
+
+
 .draw-button{
   cursor: pointer;
   margin-left: 10px;
