@@ -38,7 +38,7 @@ const MapComponent: React.FC = () => {
 
     // Cleanup function to remove the map object when the component unmounts
     return () => {
-      mapObject.setTarget(null);
+      mapObject.setTarget('');
     };
   }, []);
 
@@ -48,7 +48,7 @@ const MapComponent: React.FC = () => {
 
     const source = new VectorSource({ wrapX: false });
 
-    const vector = new VectorLayer({
+    const vector = new VectorLayer<VectorSource>({
       source: source,
       style: new Style({
         fill: new Fill({
@@ -82,7 +82,11 @@ const MapComponent: React.FC = () => {
     setDrawType(type);
     setDrawnFeatureInfo(null);
 
-    const source = map.getLayers().item(1).getSource() as VectorSource;
+    // Check if the map has a vector layer
+    const vectorLayer = map.getLayers().getArray().find(layer => layer instanceof VectorLayer) as VectorLayer<VectorSource> | undefined;
+    if (!vectorLayer) return;
+
+    const source = vectorLayer.getSource();
 
     const draw = new Draw({
       source: source,
@@ -94,7 +98,11 @@ const MapComponent: React.FC = () => {
     draw.on('drawend', async (evt) => {
       const feature = evt.feature;
       let info = '';
-      const coords = toLonLat(feature.getGeometry().getCoordinates());
+      const geometry = feature.getGeometry();
+      if (!geometry) return;
+
+      const coords = toLonLat(geometry.getCoordinates() || [])!;
+
       const [lon, lat] = coords;
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
@@ -103,10 +111,10 @@ const MapComponent: React.FC = () => {
         if (type === 'Point') {
           info = `Point added: ${placeName} (${coords.join(', ')})`;
         } else if (type === 'LineString') {
-          const length = getLength(feature.getGeometry());
+          const length = getLength(geometry)!;
           info = `Length: ${length.toFixed(2)} meters`;
         } else if (type === 'Polygon') {
-          const area = getArea(feature.getGeometry());
+          const area = getArea(geometry)!;
           info = `Area: ${area.toFixed(2)} square meters`;
         }
       } catch (error) {
