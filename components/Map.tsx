@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import 'ol/ol.css'; 
-import Map from 'ol/Map'; 
-import View from 'ol/View'; 
-import TileLayer from 'ol/layer/Tile'; 
-import OSM from 'ol/source/OSM'; 
-import { fromLonLat, toLonLat } from 'ol/proj'; 
-import { Draw } from 'ol/interaction'; 
-import { Vector as VectorLayer } from 'ol/layer'; 
-import { Vector as VectorSource } from 'ol/source'; 
+import 'ol/ol.css';
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import { fromLonLat, toLonLat } from 'ol/proj';
+import { Draw } from 'ol/interaction';
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
-import { getArea, getLength } from 'ol/sphere'; 
+import { getArea, getLength } from 'ol/sphere';
+import Geometry from 'ol/geom/Geometry';
+import Point from 'ol/geom/Point';  // Import Point geometry
 
 const MapComponent: React.FC = () => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -88,6 +90,7 @@ const MapComponent: React.FC = () => {
 
     const source = vectorLayer.getSource();
 
+    if (!source) return;
     const draw = new Draw({
       source: source,
       type: type as any,
@@ -98,10 +101,19 @@ const MapComponent: React.FC = () => {
     draw.on('drawend', async (evt) => {
       const feature = evt.feature;
       let info = '';
-      const geometry = feature.getGeometry();
+      const geometry = feature.getGeometry() as Geometry;
       if (!geometry) return;
 
-      const coords = toLonLat(geometry.getCoordinates() || [])!;
+
+
+      let coords: [number, number] = [0, 0];
+      if (geometry instanceof Point) {
+        const pointCoords = toLonLat(geometry.getCoordinates() || []);
+        if (pointCoords.length === 2) {
+          coords = pointCoords as [number, number];
+        }
+      }
+
 
       const [lon, lat] = coords;
       try {
